@@ -10,8 +10,10 @@ from factscore.abstain_detection import is_response_abstained
 from factscore.atomic_facts import AtomicFactGenerator
 from factscore.clm import CLM
 from factscore.npm import NPM
+from factscore.together_lm import TogetherLM
 from factscore.openai_lm import OpenAIModel
 from factscore.retrieval import DocDB, Retrieval
+
 
 class FactScorer(object):
 
@@ -24,7 +26,8 @@ class FactScorer(object):
                  cost_estimate="consider_cache",
                  abstain_detection_type=None,
                  batch_size=256):
-        assert model_name in ["retrieval+llama", "retrieval+llama+npm", "retrieval+ChatGPT", "npm", "retrieval+ChatGPT+npm"]
+        valid_models = ["retrieval+llama", "retrieval+llama+npm", "retrieval+ChatGPT", "npm", "retrieval+ChatGPT+npm", "retrieval+Together", "npm", "retrieval+Together"]
+        assert model_name in valid_models, f"Mode '{model_name}' is not defined!"
         self.model_name = model_name
 
         self.db = {}
@@ -43,15 +46,30 @@ class FactScorer(object):
         self.cost_estimate = cost_estimate
 
         if "llama" in model_name:
-            self.lm = CLM("inst-llama-7B",
-                          model_dir=os.path.join(model_dir, "inst-llama-7B"),
-                          cache_file=os.path.join(cache_dir, "inst-llama-7B.pkl"))
+            self.lm = CLM(
+                model_name="inst-llama-7B",
+                model_dir=os.path.join(model_dir, "inst-llama-7B"),
+                cache_file=os.path.join(cache_dir, "inst-llama-7B.pkl")
+            )
+            print("Loaded CLM: inst-llama-7B")
         elif "ChatGPT" in model_name:
-            self.lm = OpenAIModel("ChatGPT",
-                                  cache_file=os.path.join(cache_dir, "ChatGPT.pkl"),
-                                  key_path=openai_key)
+            self.lm = OpenAIModel(
+                model_name="ChatGPT",
+                cache_file=os.path.join(cache_dir, "ChatGPT.pkl"),
+                key_path=openai_key
+            )
+            print("Loaded OpenAIModel: ChatGPT")
+        elif "Together" in model_name:
+            model_card = os.environ.get("MODEL_CARD", "togethercomputer/llama-2-7b-chat")
+            self.lm = TogetherLM(
+                model_name=model_card,
+                cache_file=os.path.join(cache_dir, f"{model_card}.pkl"),
+                api_key=openai_key
+            )
+            print(f"Loaded TogetherLM: {model_card}")
         else:
             self.lm = None
+            print("No language model is loaded.")
 
     def save_cache(self):
         if self.lm:
