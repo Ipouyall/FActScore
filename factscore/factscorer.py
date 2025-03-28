@@ -144,9 +144,10 @@ class FactScorer(object):
             assert len(topics)==len(atomic_facts), "`topics` and `atomic_facts` should have the same length"
         else:
             if self.af_generator is None:
-                self.af_generator = AtomicFactGenerator(key_path=self.openai_key,
-                                                        demon_dir=os.path.join(self.data_dir, "demos"),
-                                                        gpt3_cache_file=os.path.join(self.cache_dir, "InstructGPT.pkl"))
+                self.af_generator = AtomicFactGenerator(
+                    lm=self.lm,
+                    demon_dir=os.path.join(self.data_dir, "demos"),
+                )
 
             # estimate the total cost of atomic fact generation
             total_words = 0

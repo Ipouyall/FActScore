@@ -12,18 +12,17 @@ import os
 import time
 from nltk.tokenize import sent_tokenize
 
-from factscore.openai_lm import OpenAIModel
 
 nltk.download("punkt")
 
 
 class AtomicFactGenerator(object):
-    def __init__(self, key_path, demon_dir, gpt3_cache_file=None):
+    def __init__(self, lm, demon_dir):
         self.nlp = spacy.load("en_core_web_sm")
         self.is_bio = True
         self.demon_path = os.path.join(demon_dir, "demons.json" if self.is_bio else "demons_complex.json")
 
-        self.openai_lm = OpenAIModel("InstructGPT", cache_file=gpt3_cache_file, key_path=key_path)
+        self.openai_lm = lm
 
         # get the demos
         with open(self.demon_path, 'r') as f:
