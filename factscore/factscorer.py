@@ -363,7 +363,7 @@ if __name__ == '__main__':
                 atomic_facts.append([atom["text"] for sent in dp["annotations"] for atom in sent["model-atomic-facts"]])
             else:
                 topics.append(dp["topic"])
-                generations.append(dp["output"])
+                generations.append(dp.get("output", ""))
             if args.n_samples is not None and tot==args.n_samples:
                 break
     out = fs.get_score(topics=topics,
