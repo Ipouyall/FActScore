@@ -26,7 +26,7 @@ class FactScorer(object):
                  cost_estimate="consider_cache",
                  abstain_detection_type=None,
                  batch_size=256):
-        valid_models = ["retrieval+llama", "retrieval+llama+npm", "retrieval+ChatGPT", "npm", "retrieval+ChatGPT+npm", "retrieval+Together", "npm", "retrieval+Together"]
+        valid_models = ["retrieval+llama", "retrieval+llama+npm", "retrieval+ChatGPT", "npm", "retrieval+ChatGPT+npm", "retrieval+Together", "npm", "retrieval+Together+npm"]
         assert model_name in valid_models, f"Mode '{model_name}' is not defined!"
         self.model_name = model_name
 
